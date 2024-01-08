@@ -1,0 +1,297 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Klienci</li>
+  </ol>
+</nav>
+
+
+<h1> Klienci </h1> 
+
+<!--Przyciski nawigacyjne-->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop1">
+    Utwórz nowego klienta
+  </button> 
+  
+  
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+  Opcje
+</button>
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">
+  Wyszukiwarka
+</button>
+{%if submitted%} 
+
+<div class="modal fade" id="dodanoKlienta" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Pomyślnie dodano klienta</h5>
+            
+        </div>
+        <div class="modal-body">
+            Klient <strong>{{ostatni.imie}} {{ostatni.nazwisko}} </strong> został pomyślnie dodany!
+
+
+        </div>
+        <div class="modal-footer">
+          <a href="id/{{ostatni.id}}"><button type="button" class="btn btn-primary">Przejdź do profilu klienta</button></a>
+          <a href="{% url 'klienci' %}"><button type="button" class="btn btn-secondary" data-dismiss="modal">Powrót</button></a>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<script>
+
+  window.addEventListener('load', () => 
+  {
+      let modal = new bootstrap.Modal(document.getElementById('dodanoKlienta'));
+      modal.show();
+  });
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  {% endif %}
+
+<!--Opcje wyszukiwania-->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Opcje wyszukiwania</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="{% url 'klienci' %}" method="POST">
+          {% csrf_token %}
+          <br>
+          
+              Ilość klientów na stronie: <br>
+              <input type="numbers" name="iloscStron">
+              <input class="btn btn-primary" type="submit" value="Ustaw"><br>
+              Sortuj po: 
+              <select class="form-select" size="1" aria-label="Default select example">
+                <option selected></option>
+                <option value="1">ID malejąco</option>
+                <option value="2">ID rosnąco</option>
+                <option value="3">Alfabetycznie</option>
+                <option value="4">Tylko aktywni</option>
+                <option value="5">Tylko nieaktywni</option>
+              </select>
+              <input class="btn btn-primary" type="submit" value="Ustaw">
+              <br><br>
+              
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    <h5> Aktualne ustawienia: </h5>
+                  </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <b> Ilość klientów na stronie: </b> 
+                  </div>
+                </div>
+              </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Powrót</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+  
+<!--Wyszukiwarka-->
+<div class="modal fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Opcje wyszukiwania</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="d-flex" method="POST" action="">
+          
+          <input class="form-control me-2" type="search" name="szukaj" placeholder="Wpisz dane" aria-label="Search">
+          <button name = "wyszukaj" class="btn btn-outline-secondary bg" type="submit">Wyszukaj</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Powrót</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+  
+  
+
+
+<!--Nowy klient--> 
+  <div class="modal fade" id="staticBackdrop1" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Dodawanie nowego klienta</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            {%if submitted != True%}
+
+            
+        <form method = 'POST'> {% csrf_token %}
+          {{ form.as_p}}
+            
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+          <input type="submit" value="Dodaj" name="dodaj" class="btn btn-primary">
+          </form>{% endif %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<br><br>
+
+ <input class="form-control me-2" type="text" id="przyciskWyszukajImieNazwisko" onkeyup="wyszukaj()" name="szukaj" placeholder="Wyszukaj po imieniu i nazwisku">
+
+
+  <form method="POST" action="{% url 'klienci' %}">
+    {% csrf_token %}
+    
+  <input type="submit" name="pokaz" onclick="dodajPowrot()" class="btn btn-primary" value="Pokaz wszystkich klientow">
+
+</form>
+
+
+<table class="table" id="tabela">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Imię i Nazwisko</th>
+        <th scope="col">Adres zamieszkania</th>
+        <th scope="col">Adres instalacji</th>
+        <th scope="col">Status</th>
+        <th scope="col">Przejdź do wybranego profilu</th>
+      </tr>
+    </thead>
+    <tbody>
+        {%for klient in klienci%}
+        <tr>
+            <th scope="row">{{klient.id}}</th>
+                <td>{{klient.imie}} {{klient.nazwisko}} </td>
+                <td> {{klient.miastoZamieszkania}} {{klient.ulicaZamieszkania}}  {{klient.numerZamieszkania}} </td>
+                <td> {{klient.miastoInstalacji}} {{klient.ulicaInstalacji}}  {{klient.numerInstalacji}} </td>
+                {% if klient.aktywny == True %}
+                  <td style="color:green;">Aktywny</td>
+                
+                {% else  %}
+                  <td style="color:red;">Nieaktywny</td>
+                {% endif %}
+                <td><a href="id/{{klient.id}}" class="btn btn-primary btn-smactive" 
+                  role="button" aria-pressed="true">Profil Klienta</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+  function wyszukaj() {
+    
+    var input, filtruj, tabela, tr, td, i, txtValue;
+    input = document.getElementById("przyciskWyszukajImieNazwisko");
+    filtruj = input.value.toUpperCase();
+    tabela = document.getElementById("tabela");
+    tr = tabela.getElementsByTagName("tr");
+  
+    
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[0];
+      if (td) {
+        txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filtruj) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      } 
+    }
+  }
+ 
+  
+
+  </script>
+
+
+
+
+
+
+<br>
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+
+
+      {% if klienci.has_previous %}  
+    
+      <li class="page-item"><a class="page-link" href="?strona=1">Początek</a></li>
+      <li class="page-item"><a class="page-link" href="?strona={{klienci.previous_page_number}}">Poprzednia</a></li>
+      
+  
+  
+  {% endif %}
+
+
+
+  
+  
+{% for i in numeracja%}
+   
+    
+    
+    <a class="page-link" href="?strona={{forloop.counter}}">{{forloop.counter}}</a> </li>
+    
+
+
+{% endfor %}
+
+
+
+
+{% if klienci.has_next %}
+    <li class="page-item"><a class="page-link" href="?strona={{klienci.next_page_number}}">Następna</a></li>
+
+
+{% endif %}
+</ul>
+</nav>
+
+<br>
+
+
+{% endblock %}

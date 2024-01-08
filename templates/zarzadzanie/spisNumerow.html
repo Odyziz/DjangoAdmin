@@ -1,0 +1,143 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'zarzadzanie' %}">Zarządzanie</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Konta Bankowe</li>
+    </ol>
+</nav>
+  
+<div class="alert alert-info" role="alert">
+    Aktualnie w bazie znajduje się <b>{{kontaBankoweIlosc}}</b> kont bankowych w tym <b>{{kontaBankoweKlientIlosc}}</b> jest wolnych 
+  </div>
+
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropNumery">
+    <b>Dodaj nowe numery</b> 
+  </button>
+
+<table class="table" id="tabela">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Numer konta</th>
+        <th scope="col">Klient</th>
+      </tr>
+    </thead>
+    <tbody>
+        {%for numer in kontaBankowe%}
+        <tr>
+            <th scope="row">{{numer.id}}</th>
+                <td>{{numer.numerKonta}}</td>
+                {% if numer.klient %}
+                <td><a href='/klienci/id/{{numer.klient.id}}'>{{numer.klient}}</a></td>
+                {% else %}
+                <td>Wolny</td>
+                {% endif %}
+
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+  
+
+
+
+
+<!--Modal odpowiedzialny za dodawanie numerów-->
+  
+
+
+
+<div class="modal fade " id="staticBackdropNumery" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-l">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Dodaj konta</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'spisNumerow' %}" enctype='multipart/form-data'> 
+            {% csrf_token %}
+            <h6>Dodawanie ręczne <input type="radio" name="radio" id="opcjaRecznie" onchange="dodaj();">  
+            Import z pliku .csv <input type="radio" name="radio" id="opcjaCsv" onchange="dodaj();">  </h6> 
+                    <br>
+                    
+                    <div id="wynik">
+                    </div>
+                    
+                    <script>
+                    function dodaj()
+                    {
+                      if (document.getElementById('opcjaRecznie').checked)
+                        {
+                            document.getElementById('wynik').innerHTML=`<div class="inputy">
+                                <button class="dodajPozycje btn btn-primary">Dodaj pozycję</button> <br><br>
+                                <div class='container input-group mb-3'><input class="form-control" type="text" minlength="26" maxlength="26" required name="numerKonta"><a href="#" 
+                                    class="skasuj"><span style="color:red;" class="material-icons-outlined">delete_forever</span></a></div>
+                                  
+                                
+                                 </div>`;
+
+
+                            $(document).ready(function() {
+                                
+                                var wrapper         = $(".inputy"); //Fields wrapper
+                                var add_button      = $(".dodajPozycje"); //Add button ID
+                               
+                                
+                                
+                                
+                               $(add_button).click(function(e)
+                               { 
+                                    e.preventDefault();
+
+                                        $(wrapper).append(`<div class='container input-group mb-3'><input class="form-control w-75" type="text" minlength="26" maxlength="26" required name="numerKonta"><a href="#" 
+                                          class="skasuj"><span style="color:red;" class="material-icons-outlined">delete_forever</span></a>
+                                          
+                                        </div>`); 
+                                      
+                                      
+                                });
+                               
+                                $(wrapper).on("click",".skasuj", function(e){ 
+                                   
+                                    e.preventDefault(); 
+                                    $(this).parent('div').remove(); 
+                                    x--;
+                                })
+                            });
+                        }
+                     else if ((document.getElementById('opcjaCsv').checked))
+                        {
+                          document.getElementById('wynik').innerHTML=`<div class="mb-3">
+                            <label for="formFile" class="form-label"></label>
+                            <input class="form-control" required type="file" name="arkusz" id="formFile">
+                          </div>`;
+                        }
+                    }
+                    </script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+          <input class="btn btn-primary" type="submit" name="przyciskNumery" value="Wyślij">
+        </form>
+  
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+
+
+

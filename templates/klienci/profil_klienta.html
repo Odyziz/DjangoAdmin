@@ -1,0 +1,306 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+{% if odmowa != True %}
+
+<!--Dane klienta-->
+
+<style>
+    .card
+    {
+      width:50%;
+      min-height:550px;
+      float:left;
+      
+      
+    }
+    
+    .card-header
+    {
+      background-color: lightgray;
+    
+    }
+    
+    .h1
+    {
+      text-align:center;
+    }
+    
+    #puste
+    {
+      clear:both;
+    
+    }
+    
+    
+    </style>
+    
+    
+    
+    <div class="card">
+      <div class="card-header">
+        <b>Twoje dane</b>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Dane podstawowe</h5>
+        <b>Numer klienta:</b> {{klient.id}}<br>
+        <b>Imię i nazwisko:</b> {{klient.imie}} {{klient.nazwisko}} <br>
+        <b>PESEL:</b> {{klient.pesel}}<br>
+        <b>Dowód osobisty:</b> {{klient.seriaDowodu}}<br>
+        <hr>
+        <h5 class="card-title">Dane kontaktowe</h5>
+        <b>Telefon GSM:</b>{% if klient.numerGSM == '' %} brak {% else %} <a href="tel:{{klient.numerGSM}}">{{klient.numerGSM}}</a>{% endif %}<br>
+        <b>Telefon:</b> {% if klient.numerStacjonarny == '' %} brak {% else %}<a href="tel:{{klient.numerStacjonarny}}">{{klient.numerStacjonarny}}</a>{% endif %}<br>
+        <b>Email:</b> {% if klient.email == '' %} brak {% else %}<a href="mailto:{{klient.email}}?subject=Wiadomość od operatora">{{klient.email}}</a>{% endif %}<br>
+        <hr>
+        <h5 class="card-title">Adresy</h5>
+        <b>Adres zameldowania:</b> {{klient.miastoZamieszkania}} {{klient.ulicaZamieszkania}} {{klient.numerZamieszkania}}
+        {% if klient.numerMieszkaniaZamieszkania != ''%}/ {{klient.numerMieszkaniaZamieszkania}}{% endif %}, {{klient.kodPocztowyZamieszkania}}<br>
+        <b>Adres instalacji:</b> {{klient.miastoInstalacji}} {{klient.ulicaInstalacji}} {{klient.numerInstalacji}}
+        {% if klient.numerMieszkaniaInstalacji != ''%}/ {{klient.numerMieszkaniaInstalacji}}{% endif %}, {{klient.kodPocztowyInstalacji}}<br>
+        
+      </div>
+    </div>
+    
+    
+    <div class="card">
+      <div class="card-header">
+        <b>Dane systemowe</b>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Dane do helpdeska</h5>
+        <b>login: </b>{{klient.uzytkownik}}<br>
+        <b>hasło: </b>      <button type="button" id="1" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdropHaslo">Zmiana hasła</button><br>
+        <hr>
+        <h5 class="card-title">Finanse</h5>
+        <b>Nazwa taryfy: </b>{{klient.taryfa.nazwaTaryfy}}<br>
+        <b>Parametry: </b>{{klient.taryfa.pobieranie}} / {{klient.taryfa.wysylanie}} mb/s (Pobieranie/Wysyłanie)<br>
+        <b>Abonament: </b>{{klient.taryfa.cena}} PLN w tym {{klient.taryfa.podatek}}% VAT<br>
+        <b>Pakiety dodatkowe:</b><br>
+        <ul>
+        {% for pakiet in pakiety  %}
+        <li><i>{{pakiet}}:</i> {{pakiet.cena}} PLN w tym {{pakiet.podatek}}% VAT</li> 
+        {% endfor %}</ul>
+        <b>Łączny miesięczny abonament: </b> {{lacznyAbonament}} PLN<br>
+        <b>Numer konta: </b> {{kontoBankowe.numerKonta}}<br>
+        <b>Stan konta: </b> 
+        {% if klient.stanKonta >= 0  %}<span style="color:green;"> {{klient.stanKonta}} PLN</span>
+        {% else %}<span style="color:red;"> {{klient.stanKonta}} PLN</span> {% endif %} <br>
+      </div>
+    </div>
+    
+    
+    <div id="puste"> </div>  
+    <button type="button" id="1" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdropZgloszenie">Dodaj zgłoszenie</button><br>
+
+          
+    <!--Koniec Danych klienta--> <br>
+
+    <p class="h1">Twoje zgłoszenia</p>
+
+            
+         
+    <table class="table" id="tabela">
+        <thead>
+          <tr>
+            <th scope="col">ID zgłoszenia</th>
+            <th scope="col">Klient</th>
+            <th scope="col">Temat</th>
+            <th scope="col">Status</th>
+            <th scope="col">Data dodania</th>
+            <th scope="col">Operacje</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+            {%for zgloszenie in zgloszenia%}
+            <tr>
+                <th scope="row">{{zgloszenie.id}}</th>
+                    <td>{{zgloszenie.klient}}</td>
+                    <td> {{zgloszenie.temat}}</td>
+                    {% if zgloszenie.statusRozwiazany == False%}
+                    <td style="color:blue;"> W trakcie</td>
+                    {% else %}
+                    <td style="color:green;">Rozwiązany</td>
+                    {% endif %}
+                    <td> {{zgloszenie.dataUtworzenia}}           
+                    <td><a href="/helpdesk/id/{{zgloszenie.id}}" class="btn btn-primary btn-smactive" role="button" aria-pressed="true">Zgłoszenie</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    
+    
+    <p class="h1">Finanse i płatności</p>
+
+         
+      
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Typ</th>
+          <th scope="col">Nazwa</th>
+          <th scope="col">Kwota</th>
+          <th scope="col">Saldo po</th>
+          <th scope="col">Data - Termin Płatności</th>
+          
+          <th scope="col">Operacje</th>
+          
+          
+        </tr>
+      </thead>
+      <tbody>
+          {%for faktura in faktury%}
+          
+          <tr value={{faktura.id}}>
+              <th scope="row">{{faktura.typ}}</th>  
+              <th scope="row">{{faktura.nazwa}}</th>
+              
+              <td>{{faktura.koszt}}</td>
+              <td 
+              {% if faktura.saldoPo < 0 %}
+              style="color:red;">{{faktura.saldoPo}}
+            </td>
+            {% else %}
+              style="color:green;">{{faktura.saldoPo}}
+          </td>
+            {% endif %}
+          <td>{% if faktura.typ == 'faktura' %}{{faktura.dataWystawienia}}- {{faktura.terminPlatnosci}}
+            {% else %}
+              Zaksięgowano: {{faktura.dataWystawienia}}
+            
+            {% endif %}</td>
+          
+              <td>{% if faktura.typ == 'faktura' %}
+              <a href="/pliki/{{faktura.faktura}}" target="_blank"><span class="material-icons-outlined">find_in_page</span></a>
+              <a href="/pliki/{{faktura.faktura}}" download><span class="material-icons-outlined">file_download</span></a>
+              
+
+              
+              
+              {% endif %}</td>
+
+                  
+
+          </tr>
+          
+          
+          {% endfor %}
+      </tbody>
+  </table>     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!--Modal odpowiedzialny za zmiane hasla-->
+
+
+                <div class="modal fade" id="staticBackdropHaslo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="staticBackdropLabel">Zmiana hasła</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <form method="POST">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            
+                          
+                          
+                        
+                  
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+                          <input type="submit" value="Edytuj" name="przyciskHaslo" class="btn btn-primary">
+                          </form></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+
+
+
+ <!--Modal odpowiedzialny za dodawanie zgloszenia-->
+
+
+                <div class="modal fade" id="staticBackdropZgloszenie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-scrollable">
+                      <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Nowe zgłoszenie</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="POST" enctype='multipart/form-data'> 
+                          {% csrf_token %}
+                          <div class="mb-3">
+                            Temat:
+                            <input name="temat" required type="text" class="form-control" id="exampleFormControlInput2">
+                            <label for="exampleFormControlTextarea1" class="form-label">Zgloszenie: </label>
+                            <textarea class="form-control" name = "tresc" id="exampleFormControlTextarea1" rows="3" name="tresc" required></textarea>
+                            <div class="mb-3">
+                              <label for="formFile" class="form-label"></label>
+                              <input class="form-control" type="file" name="zalacznik" id="formFile">
+                              <input type="text" class="form-control" name="id" style="display:none;" readonly value="{{klient.id}}">
+                            </div>
+                          
+
+                        
+                        
+                      
+                
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+                        <input type="submit" value="Dodaj" name="dodajZgloszenie" class="btn btn-primary">
+                        </form></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% else %}
+Brak dostępu
+{% endif %}
+
+{% endblock %}

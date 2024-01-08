@@ -1,0 +1,115 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'zgloszenia' %}">Helpdesk</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Numer zgłoszenia: {{zgloszenie.id}} </li>
+    </ol>
+  </nav>
+  
+  
+  
+  <div style="text-align:center;" class="alert alert-dark" role="alert">
+    <b>Temat: </b> {{zgloszenie.temat}}
+  </div>
+
+  <b> Klient: <a href="{% url 'klient' idKlienta %}"> {{zgloszenie.klient}}</a> </b><i>{{zgloszenie.dataUtworzenia}}:</i><br>  {{zgloszenie.tresc}} <br>
+  {% if zgloszenie.zalacznik%}
+  <i>Załącznik:</i> <a href="/pliki/{{zgloszenie.zalacznik}}" target="_blank"><span class="material-icons-outlined">find_in_page</span></a>
+  {% endif %}
+  <hr>
+  {% for odpowiedz in odpowiedzi %}
+    {% if odpowiedz.uzytkownik %}
+    <div style="text-align:right;"><b> Serwis: {{odpowiedz.uzytkownik.get_full_name}}  </b><i>{{odpowiedz.dataUtworzenia}}:</i> <br> {{odpowiedz.tresc}} <br>
+      {% if odpowiedz.zalacznik%}
+    <i>Załącznik:</i> <a href="/pliki/{{odpowiedz.zalacznik}}" target="_blank"><span class="material-icons-outlined">find_in_page</span></a>
+  {% endif %}
+  <hr>
+    </div>
+    {% else %}
+    <div><i>{{odpowiedz.dataUtworzenia}}:</i><b> Klient: <a href="{% url 'klient' idKlienta %}"> {{odpowiedz.klient}}</a></b><br> {{odpowiedz.tresc}} <br>
+      {% if odpowiedz.zalacznik%}
+      <i>Załącznik:</i> <a href="/pliki/{{odpowiedz.zalacznik}}" target="_blank"><span class="material-icons-outlined">find_in_page</span></a>
+    {% endif %}
+    <hr>
+    </div>
+    
+    {% endif %}
+    
+
+
+  {% endfor %}
+ {% if zgloszenie.statusRozwiazany == True %}
+ <div style="text-align:center; "class="alert alert-warning" role="alert">
+  <b>Zgłoszenie zostało zamknięte</b>
+</div>
+{% else %}
+  <form method="POST" enctype='multipart/form-data'> 
+      {% csrf_token %}
+  <div class="mb-3">
+    <label for="exampleFormControlTextarea1" class="form-label">Odpowiedź: </label>
+    <textarea class="form-control" name = "tresc" id="exampleFormControlTextarea1" rows="3" name="tresc" required></textarea>
+    <div class="mb-3">
+      <label for="formFile" class="form-label"></label>
+      <input class="form-control" type="file" name="zalacznik" id="formFile">
+    </div>
+    {% if dostep == True %}
+    <b>Dodatkowe opcje:</b> <br>
+    {% if klient.email == ''%}
+    <del>Wyślij maila<input type="checkbox" disabled name="wyslijMail"></del> Klient nie posiada przypisanego adresu email <br>
+
+    {% else %}
+    
+    Wyślij maila<input type="checkbox" name="wyslijMail"> <br>
+    
+    {% endif %}
+    {% if klient.numerGSM == ''%}
+    <del> Wyślij sms<input type="checkbox" disabled name="wyslijSMS"></del> Klient nie posiada przypisanego numeru <br>
+    {% else %}
+    Wyślij sms<input type="checkbox" name="wyslijSMS"> <br>
+    {% endif %}
+  {% endif %}
+    <input class="btn btn-primary" name='odpowiedz' type="submit" value="Wyślij">
+    
+    
+    
+
+  </div>
+  
+</form>
+{% if dostep == True %}
+<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+  Zamknij zgłoszenie
+</button>
+{% endif %}
+
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Komunikat</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'zgloszenia' %}">
+          {% csrf_token %}
+        <input type="text" class="form-control" name="id" style="display:none;" readonly value="{{zgloszenie.id}}">
+        Czy na pewno chcesz zamknąć zgłoszenie?
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Powrót</button>
+        <button type="submit" name="archiwum" class="btn btn-primary">Zamknij zgłoszenie</button></form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+{% endif %}
+{% endblock %}

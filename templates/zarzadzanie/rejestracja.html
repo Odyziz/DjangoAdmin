@@ -1,0 +1,11 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<form method="POST" action="{% url 'rejestracja' %}">
+{%csrf_token%}
+{{form.as_p}}
+
+<input type="submit" value"Zarejestruj">
+</form>
+{% endblock %}

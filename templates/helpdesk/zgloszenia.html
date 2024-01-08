@@ -1,0 +1,49 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Helpdesk</li>
+    </ol>
+  </nav>
+  
+  
+  <h1>Zgłoszenia helpdesk</h1> 
+
+
+
+<table class="table" id="tabela">
+    <thead>
+      <tr>
+        <th scope="col">ID zgłoszenia</th>
+        <th scope="col">Klient</th>
+        <th scope="col">Temat</th>
+        <th scope="col">Status</th>
+        <th scope="col">Data dodania</th>
+        <th scope="col">Operacje</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {%for zgloszenie in zgloszenia%}
+        <tr>
+            <th scope="row">{{zgloszenie.id}}</th>
+                <td>{{zgloszenie.klient}}</td>
+                <td> {{zgloszenie.temat}}</td>
+                {% if zgloszenie.statusRozwiazany == False%}
+                <td style="color:blue;"> W trakcie</td>
+                {% else %}
+                <td style="color:green;">Rozwiązany</td>
+                {% endif %}
+                <td> {{zgloszenie.dataUtworzenia}}           
+                <td><a href="id/{{zgloszenie.id}}" class="btn btn-primary btn-smactive" role="button" aria-pressed="true">Zgłoszenie</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+{% endblock %}

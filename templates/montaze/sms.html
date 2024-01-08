@@ -1,0 +1,18 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+{% if blad == 0 %}
+
+
+<div class="alert alert-success" role="alert">
+    Sms został pomyślnie wysłany! <a href="javascript:history.back()">strona wcześniej</a>
+</div>
+{% endif %}
+{% if blad == 1 %}
+<div class="alert alert-danger" role="alert">
+    SMS nie został poprawnie wysłany, sprawdź czy numer klienta jest prawidłowy lub skontaktuj się z administratorem systemu <a href="javascript:history.back()">strona wcześniej</a>
+</div>
+{% endif %}
+{% endblock %}
+

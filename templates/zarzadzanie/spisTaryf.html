@@ -1,0 +1,74 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'zarzadzanie' %}">Zarządzanie</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Taryfy</li>
+    </ol>
+</nav>
+
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropTaryfa">
+  Utwórz nową taryfę
+</button> 
+
+<a href="{% url 'generuj_raport' %}"><button type="button" class="btn btn-primary" data-dismiss="modal">Generuj raport</button></a>
+<br><br>
+{% for taryfa, liczba in taryfaLiczba%}
+  
+
+
+<div class="card text-center">
+    <div class="card-header">
+      <b>{{taryfa.nazwaTaryfy}}</b>
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">Specyfikacja</h5>
+      <p class="card-text">Przepustowość {{taryfa.pobieranie}} / {{taryfa.wysylanie}} mb/s <br>
+      Abonament miesięczny <b>{{taryfa.cena}} PLN</b> w tym <b>{{taryfa.podatek}}%</b> VAT
+
+      </p>
+      <a href="{% url 'taryfaSzczegoly' taryfa.id %}" class="btn btn-primary">Przejdź</a>
+    </div>
+    <div class="card-footer text-muted">
+      Liczba klientów z przypisaną taryfą: <b>{{liczba}}</b>
+    </div>
+  </div>
+<br>
+
+  
+{% endfor %}
+
+
+
+
+<!--Nowa taryfa--> 
+<div class="modal fade" id="staticBackdropTaryfa" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Dodawanie nowej taryfy</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          
+
+          
+          <form method = 'POST'> {% csrf_token %}
+              {{ form.as_p}}
+          
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+        <input type="submit" value="Dodaj" name="dodaj" class="btn btn-primary">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+{% endblock %}

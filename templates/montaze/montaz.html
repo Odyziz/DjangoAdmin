@@ -1,0 +1,199 @@
+{% extends 'glowna/szablon.html' %}
+{% load static %}
+{%block content %}
+
+<link href="{% static 'montazStyl.css' %}" rel="stylesheet">
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'montaze' %}">Montaże</a></li>
+      <li class="breadcrumb-item active" aria-current="page">({{montaz.id}}) {{montaz.miasto}} {{montaz.ulica}} {{montaz.numerDomu}}</li>
+    </ol>
+  </nav>
+
+  
+  {% if montaz.status != True %}
+  <center>
+  <div class="alert alert-danger" role="alert">Montaż o podanym ID jest w archiwum </div>
+  </center>
+  {% endif %}     
+
+
+  <div  class="card">
+    <ul class="list-group list-group-flush">
+      <li id="naglowek1" class="list-group-item"><b>Dane zlecenia</b></li>
+      <li class="list-group-item"><b>Numer zlecenia: </b> {{montaz.id}}</li>
+      <li class="list-group-item"><b> Osoba składająca zamówienie: </b> {{montaz.imie}} {{montaz.nazwisko}}</li>
+      <li class="list-group-item"><b> Adres instalacji: </b> {{montaz.miasto}} {{montaz.ulica}} {{montaz.numerDomu}}</li>
+      <li class="list-group-item"><b> Data przyjęcia: </b> {{montaz.data}}</li>
+    </ul>
+    <ul class="list-group list-group-flush">
+      <li id="naglowek1" class="list-group-item"><b>Dane Kontaktowe: </b></li>
+      <li class="list-group-item"><b> Numer</b> <a href="tel://{{montaz.telefon}}">{{montaz.telefon}}</a></li>
+      <li class="list-group-item"><b> Alternatywny: </b>
+        {% if montaz.alternatywny != None %}
+        <a href="tel://{{montaz.alternatywny}}">{{montaz.alternatywny}}</a></li>
+        {% else %}
+        -</li>
+        {% endif %}
+      <li class="list-group-item"><b> Adres email: </b>
+      {% if montaz.email != None %}
+      <a href="mailto:{{montaz.email}}">{{montaz.email}}</a></li>
+      {% else %}
+      -</li>
+      {% endif %}
+
+
+
+  </div>
+
+
+
+<div class="mb-3">
+  <label for="exampleFormControlTextarea1" class="form-label"><b>Informacje o zleceniu</b></label>
+  <textarea readonly class="form-control" id="exampleFormControlTextarea1" rows="3">{{montaz.informacjaBiuro}}</textarea>
+</div>  
+<div class="mb-3">
+  <label for="exampleFormControlTextarea1" class="form-label"><b>Informacje od montażystów</b></label>
+  <textarea readonly class="form-control" id="exampleFormControlTextarea1" rows="3">{{montaz.informacjaMontaz}}</textarea>
+</div>  
+
+
+
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+    Edytuj dane
+  </button>
+  <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+    Operacje
+  </button>
+</br></br>
+  <p class="h1">Historia</p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Użytkownik</th>
+        <th scope="col">Informacja</th>
+        <th scope="col">Data</th>
+      </tr>
+    </thead>
+    <tbody>
+        {%for wpis in historia%}
+        {% if montaz.id == wpis.montaz_id %}
+        <tr>
+            <th scope="row">{{wpis.uzytkownik}}</th>
+              <td>{{wpis.zmieniono}}</td>
+              <td>{{wpis.data}}</td>
+             
+  
+                
+  
+        </tr>
+        {% endif %}
+        
+        {% endfor %}
+    </tbody>
+  </table>    
+
+
+
+
+
+
+<!--Modal odpowiedzialny za edytowanie danych-->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Edytowanie danych</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method=POST > {% csrf_token %}
+    
+            {{form.as_p}}
+          
+        
+  
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+          <input type="submit" value="Edytuj" name="przyciskEdytuj" class="btn btn-primary">
+          </form></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!--Modal odpowiedzialny za wyslanie sms-->
+  <div class="modal fade" id="staticBackdropSms" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Wyślij wiadomość</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{%url 'wyslij_sms_montaz'%}"> 
+            {% csrf_token %}
+            <div class="mb-3">
+              
+              <input readonly="readonly" name="telefon" value= "+48{{montaz.telefon}}" type="text" class="form-control" id="exampleFormControlInput1">
+            </div>
+
+            <div class="mb-3">
+              <label for="exampleFormControlTextarea1" class="form-label">Treść wiadomości</label>
+              <textarea class="form-control" name = "tresc" id="exampleFormControlTextarea1" rows="3" name="tresc"> </textarea>
+            </div>
+            
+            <input type="text" class="form-control" name="id" style="display:none;" readonly value="{{montaz.id}}">
+  
+  
+  
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+          <input class="btn btn-primary" type="submit" value="Wyślij">
+        </form>
+  
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+    
+
+      <!-- Boczny panel po lewej    -->
+      <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasExampleLabel">Wybierz operację</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+                  <div>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropSms">
+                      <b> Wyślij sms </b> <span class="material-icons-outlined">
+                        textsms
+                        </span>
+                    </button>
+                  </div>
+                </br>
+
+                      <form method="POST" action="{% url 'montaze' %}">
+                      {% csrf_token %}
+                      <input type="text"  name="id" style="display:none;" value="{{montaz.id}}">
+                      <button type="submit" class="btn btn-primary" name="archiwum"><b>Archiwizuj</b></button>
+                    <span id="przyciskPowrot"></span>
+                  </form>
+
+
+
+
+
+        </div>
+      </div>
+
+
+{% endblock %}

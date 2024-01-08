@@ -1,0 +1,92 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Zarządzanie</li>
+  </ol>
+</nav>
+
+<h1>Zarządzanie</h1>
+
+<!--<a href="{% url 'spisAdresow' %}"><button type="button" class="btn btn-primary">Pokaż wszystkie adresy</button><a/> -->
+
+  
+  <div class="accordion-item">
+      <h2 class="accordion-header" id="headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <b>Konta bankowe </b>
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          Aktualnie w bazie znajduje się <b>{{kontaBankoweIlosc}}</b> kont bankowych w tym <b>{{kontaBankoweKlientIlosc}}</b> jest wolnych <br>
+          <a href="{% url 'spisNumerow' %}"><button type="button" class="btn btn-primary">Przejdź do kont bankowych</button></a>
+          
+        </div>
+      </div>
+  </div>
+  
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingOne">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne2" aria-expanded="true" aria-controls="collapseOne">
+        <b>Taryfy</b>
+      </button>
+    </h2>
+    <div id="collapseOne2" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        Utworzono <b>{{taryfyIlosc}}</b> taryfy klienckie <br>
+        <a href="{% url 'spisTaryf' %}"><button type="button" class="btn btn-primary">Przejdź do konfiguratora taryf</button></a>
+        
+      </div>
+    </div>
+</div>
+    
+<div class="accordion-item">
+  <h2 class="accordion-header" id="headingOne">
+    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne3" aria-expanded="true" aria-controls="collapseOne">
+      <b>Pakiety dodatkowe</b>
+    </button>
+  </h2>
+  <div id="collapseOne3" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+    <div class="accordion-body">
+      Utworzono <b>{{pakietyDodatkoweIlosc}}</b> pakiety dodatkowe <br>
+      <a href="{% url 'spisPakietow' %}"><button type="button" class="btn btn-primary">Przejdź do konfiguratora pakietów</button></a> 
+      
+    </div>
+  </div>
+</div>
+
+<div class="accordion-item">
+  <h2 class="accordion-header" id="headingOne">
+    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne4" aria-expanded="true" aria-controls="collapseOne">
+      <b>Użytkownicy i grupy</b>
+    </button>
+  </h2>
+  <div id="collapseOne4" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+    <div class="accordion-body">
+      W systemie znajduje się <b>{{uzytkownicy}}</b> kont pracowniczych <br>
+      <a href="{% url 'spisUzytkownikow' %}"><button type="button" class="btn btn-primary">Przejdź do listy użytkowników</button></a>
+      
+    </div>
+  </div>
+</div>
+  
+<div class="accordion-item">
+  <h2 class="accordion-header" id="headingOne">
+    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne5" aria-expanded="true" aria-controls="collapseOne">
+      <b>Adresy</b>
+    </button>
+  </h2>
+  <div id="collapseOne5" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+    <div class="accordion-body">
+      Konfigurator adresów instalacji <br>
+      <a href="{% url 'spisAdresow' %}"><button type="button" class="btn btn-primary">Przejdź do konfiguratora adresów</button></a>
+      
+    </div>
+  </div>
+</div>
+
+{% endblock %}

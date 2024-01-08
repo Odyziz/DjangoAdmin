@@ -1,0 +1,25 @@
+.card
+{
+  width:50%;
+  min-height:550px;
+  float:left;
+  
+  
+}
+
+.card-header
+{
+  background-color: lightgray;
+
+}
+
+.h1
+{
+  text-align:center;
+}
+
+#puste
+{
+  clear:both;
+
+}

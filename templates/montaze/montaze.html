@@ -1,0 +1,118 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Montaże</li>
+      
+    </ol>
+</nav>
+  
+
+<!--Przyciski nawigacyjne-->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop1">
+  Dodaj nowy montaż
+</button> 
+<a href="{% url 'archiwum' %}"><button type="button" class="btn btn-primary">
+  Archiwum
+</button></a>
+<br><br>
+<input class="form-control me-2" type="text" id="przyciskWyszukajImieNazwisko" onkeyup="wyszukaj()" name="szukaj" placeholder="Wyszukaj po imieniu i nazwisku">
+
+
+
+
+
+
+<table class="table" id="tabela">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Imię i Nazwisko</th>
+      <th scope="col">Adres zlecenia</th>
+      <th scope="col">Dane kontaktowe</th>
+      <th scope="col">Inforacja biura</th>
+      <th scope="col">Inforacja montażystów</th>
+      <th scope="col">Przejdź</th>
+    </tr>
+  </thead>
+  <tbody>
+      {%for montaz in montaze%}
+      
+
+      
+      <tr>
+          
+          <th scope="row">{{montaz.id}}</th>
+              <td>{{montaz.imie}} {{montaz.nazwisko}} </td>
+              <td> {{montaz.miasto}} {{montaz.ulica}} {{montaz.numerDomu}}</td>
+              <td> {{montaz.telefon}} {{montaz.alternatywny}}  {{montaz.email}} </td>
+              <td>{{montaz.informacjaBiuro}}</td>
+              <td>{{montaz.informacjaMontaz}}</td>
+              <td><a href="id/{{montaz.id}}" class="btn btn-primary btn-smactive" role="button" aria-pressed="true">Szczegóły</a></td>
+      </tr>
+      
+      
+      {% endfor %}
+  </tbody>
+</table>
+<script>
+  function wyszukaj() {
+    
+    var input, filtruj, tabela, tr, td, i, txtValue;
+    input = document.getElementById("przyciskWyszukajImieNazwisko");
+    filtruj = input.value.toUpperCase();
+    tabela = document.getElementById("tabela");
+    tr = tabela.getElementsByTagName("tr");
+  
+    
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[0];
+      if (td) {
+        txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filtruj) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      } 
+    }
+  }
+ 
+  
+
+  </script>
+
+
+<!--Nowy montaż--> 
+<div class="modal fade" id="staticBackdrop1" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Dodawanie nowego montażu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          {%if submitted != True%}
+
+          
+          <form method = 'POST'> {% csrf_token %}
+              {{ form.as_p}}
+          
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+        <input type="submit" value="Dodaj" name="dodaj" class="btn btn-primary">
+        </form>{% endif %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+{% endblock %}

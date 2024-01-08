@@ -1,0 +1,873 @@
+{% extends 'glowna/szablon.html' %}
+{% load static %}
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'klienci' %}">Klienci</a></li>
+    <li class="breadcrumb-item active" aria-current="page">({{klient.id}}) {{ klient.imie }} {{klient.nazwisko}}</li>
+  </ol>
+</nav>
+
+
+{% if klient.aktywny != True %}
+<center>
+<div class="alert alert-danger" role="alert"> Ten użytkownik jest wyłączony! </div>
+</center>
+{% endif %}        
+<link href="{% static 'klientStyl.css' %}" rel="stylesheet">
+  
+<!--Dane klienta-->
+
+<style>
+.card
+{
+  width:50%;
+  min-height:550px;
+  float:left;
+  
+  
+}
+
+.card-header
+{
+  background-color: lightgray;
+
+}
+
+.h1
+{
+  text-align:center;
+}
+
+#puste
+{
+  clear:both;
+
+}
+
+
+</style>
+
+
+
+<div class="card">
+  <div class="card-header">
+    <b>Dane klienta</b>
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">Dane podstawowe</h5>
+    <b>ID:</b> {{klient.id}}<br>
+    <b>Imię i nazwisko:</b> {{klient.imie}} {{klient.nazwisko}} <br>
+    <b>PESEL:</b> {{klient.pesel}}<br>
+    <b>Dowód osobisty:</b> {{klient.seriaDowodu}}<br>
+    <hr>
+    <h5 class="card-title">Dane kontaktowe</h5>
+    <b>Telefon GSM:</b>{% if klient.numerGSM == '' %} brak {% else %} <a href="tel:{{klient.numerGSM}}">{{klient.numerGSM}}</a>{% endif %}<br>
+    <b>Telefon:</b> {% if klient.numerStacjonarny == '' %} brak {% else %}<a href="tel:{{klient.numerStacjonarny}}">{{klient.numerStacjonarny}}</a>{% endif %}<br>
+    <b>Email:</b> {% if klient.email == '' %} brak {% else %}<a href="mailto:{{klient.email}}?subject=Wiadomość od operatora">{{klient.email}}</a>{% endif %}<br>
+    <hr>
+    <h5 class="card-title">Adresy</h5>
+    <b>Adres zameldowania:</b> {{klient.miastoZamieszkania}} {{klient.ulicaZamieszkania}} {{klient.numerZamieszkania}}
+    {% if klient.numerMieszkaniaZamieszkania != ''%}/ {{klient.numerMieszkaniaZamieszkania}}{% endif %}, {{klient.kodPocztowyZamieszkania}}<br>
+    <b>Adres instalacji:</b> {{klient.miastoInstalacji}} {{klient.ulicaInstalacji}} {{klient.numerInstalacji}}
+    {% if klient.numerMieszkaniaInstalacji != ''%}/ {{klient.numerMieszkaniaInstalacji}}{% endif %}, {{klient.kodPocztowyInstalacji}}<br>
+    
+  </div>
+</div>
+
+
+<div class="card">
+  <div class="card-header">
+    <b>Dane systemowe</b>
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">Dane do helpdeska</h5>
+    <b>login: </b>{{klient.uzytkownik}}<br>
+    <b>hasło: </b>      <button type="button" id="1" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdropHaslo">Zmiana hasła</button><br>
+    <b>Ostatnie logowanie:</b> {{klient.uzytkownik.last_login}}<br>
+    <b>Utworzony:</b> {{klient.uzytkownik.date_joined.date}}<br>
+    <hr>
+    <h5 class="card-title">Finanse</h5>
+    <b>Nazwa taryfy: </b>{{klient.taryfa.nazwaTaryfy}}<br>
+    <b>Parametry: </b>{{klient.taryfa.pobieranie}} / {{klient.taryfa.wysylanie}} mb/s (Pobieranie/Wysyłanie)<br>
+    <b>Abonament: </b>{{klient.taryfa.cena}} PLN w tym {{klient.taryfa.podatek}}% VAT<br>
+    <b>Pakiety dodatkowe:</b><br>
+    <ul>
+    {% for pakiet in pakiety  %}
+    <li><i>{{pakiet}}:</i> {{pakiet.cena}} PLN w tym {{pakiet.podatek}}% VAT</li> 
+    {% endfor %}</ul>
+    <b>Łączny miesięczny abonament: </b> {{lacznyAbonament}} PLN<br>
+    <b>Numer konta: </b> {{kontoBankowe.numerKonta}}<br>
+    <b>Stan konta: </b> 
+    {% if klient.stanKonta >= 0  %}<span style="color:green;"> {{klient.stanKonta}} PLN</span>
+    {% else %}<span style="color:red;"> {{klient.stanKonta}} PLN</span> {% endif %} <br>
+  </div>
+</div>
+
+
+<div id="puste"> </div>  
+      
+<!--Koniec Danych klienta--> <br>
+      <button type="button" id="1" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        Edytuj dane
+      </button>
+      <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+        Operacje
+      </button>
+      <br>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+		
+	
+	<script>
+	$(document).ready(function() {
+    var max_fields      = 10; //maximum input boxes allowed
+    var wrapper         = $(".input_fields_wrap"); //Fields wrapper
+    var add_button      = $(".add_field_button"); //Add button ID
+   
+    var x = 1; //initlal text box count
+	
+	
+   $(add_button).click(function(e){ //on add input button click
+        e.preventDefault();
+        if(x < max_fields){ //max input box allowed
+
+		     //text box increment
+          //var poprzednie = document.getElementsByName('pole1')[0];
+         // alert(poprzednie.value);
+          
+          
+          var i = 1;
+            $(wrapper).append(`<div><b> Usługa: </b><input type="text" name="pole"><b>Kwota(PLN): </b><input type="number" style="width: 120px;" min="0.01" step="0.01" name="cena"><b>Podatek VAT(%): </b><input name="podatek" style="width: 80px;" type="number" value="23">
+              <b>Ilość: </b><input name="ilosc" style="width: 80px;" type="number" value="1" step="1" min="1"><a href="#" 
+              class="remove_field"><span style="color:red;" class="material-icons-outlined">delete_forever</span></a>   </div>`); 
+          
+	  }     
+    });
+   
+    $(wrapper).on("click",".remove_field", function(e){ //user click on remove text
+       
+		e.preventDefault(); 
+		$(this).parent('div').remove(); 
+		x--;
+    })
+});
+	
+</script>
+
+
+      <p class="h1">Finanse i płatności</p>
+
+         
+      
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Typ</th>
+                    <th scope="col">Nazwa</th>
+                    <th scope="col">Kwota</th>
+                    <th scope="col">Saldo po</th>
+                    <th scope="col">Data - Termin Płatności</th>
+                    
+                    <th scope="col">Operacje</th>
+                    
+                    
+                  </tr>
+                </thead>
+                <tbody>
+                    {%for faktura in faktury%}
+                    
+                    <tr value={{faktura.id}}>
+                        <th scope="row">{{faktura.typ}}</th>  
+                        <th scope="row">{{faktura.nazwa}}</th>
+                        
+                        <td>{{faktura.koszt}}</td>
+                        <td 
+                        {% if faktura.saldoPo < 0 %}
+                        style="color:red;">{{faktura.saldoPo}}
+                      </td>
+                      {% else %}
+                        style="color:green;">{{faktura.saldoPo}}
+                    </td>
+                      {% endif %}
+                    <td>{% if faktura.typ == 'faktura' %}{{faktura.dataWystawienia}}- {{faktura.terminPlatnosci}}
+                      {% else %}
+                        Zaksięgowano: {{faktura.dataWystawienia}}
+                      
+                      {% endif %}</td>
+                    
+                        <td>{% if faktura.typ == 'faktura' %}
+                        <a href="/pliki/{{faktura.faktura}}" target="_blank"><span class="material-icons-outlined">find_in_page</span></a>
+                        <a href="/pliki/{{faktura.faktura}}" download><span class="material-icons-outlined">file_download</span></a>
+                        {% if klient.email != None %}
+                        <button style="color:rgb(6,69,173);     
+                        background-color: transparent;
+                        background-repeat: no-repeat;
+                        border: none;
+                        cursor: pointer;
+                        overflow: hidden;
+                        outline: none;" type="button" onclick="location.href='{% url 'wyslij_fakture' faktura.id%}'"><span class="material-icons-outlined">mail</span></button>
+                        {% endif %}
+
+                        {% else %}
+                        
+                        {% endif %}</td>
+
+                            
+
+                    </tr>
+                    
+                    
+                    {% endfor %}
+                </tbody>
+            </table>     
+
+
+            <p class="h1">Umowy</p>
+
+            
+         
+                 <table class="table">
+                   <thead>
+                     <tr>
+                       <th scope="col">Nazwa</th>
+                       <th scope="col">Okres umowy</th>
+                       <th scope="col">Status</th>
+                       <th scope="col">Operacje</th>
+                       
+                       
+                     </tr>
+                   </thead>
+                   <tbody>
+                       {%for umowa in umowy%}
+                       
+                       <tr>
+                           <th scope="row">{{umowa.nazwa}}</th>  
+                           <td scope="row">{{umowa.dataOd}} - {{umowa.dataDo}}</td>
+                           <td scope="row">
+                            {% if umowa.czyPodpisana == False  %}
+                            <span style="color:red;">Niepodpisana</span>
+                            
+                            {% else %}
+                            
+                            <span style="color:green;">Podpisana </span>
+                            {% endif %}   
+                          
+                            
+                            </td>
+                           
+                       
+                           <td>
+                            <a href="/pliki/{{umowa.umowa}}" target="_blank"><span class="material-icons-outlined">find_in_page</span></a>
+                           <a href="/pliki/{{umowa.umowa}}" download><span class="material-icons-outlined">file_download</span></a>
+                           <button style="color:rgb(6,69,173);     
+                          background-color: transparent;
+                          background-repeat: no-repeat;
+                          border: none;
+                          cursor: pointer;
+                          overflow: hidden;
+                          outline: none;" type="button" name="umowaPodpisana" onclick="location.href='{% url 'umowa_podpisana' umowa.id%}'"><span class="material-icons-outlined">edit_note</span></button>
+                          {% if klient.email != None %}
+                          <button style="color:rgb(6,69,173);     
+                          background-color: transparent;
+                          background-repeat: no-repeat;
+                          border: none;
+                          cursor: pointer;
+                          overflow: hidden;
+                          outline: none;" type="button" onclick="location.href='{% url 'umowa_wyslij' umowa.id%}'"><span class="material-icons-outlined">mail</span></button>
+                          {% endif %}
+                           </td>
+                          
+                               
+   
+                       </tr>
+                       
+                       
+                       {% endfor %}
+                   </tbody>
+               </table>           
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <p class="h1">Skany klienta</p>
+
+        
+      
+
+      
+      
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Nazwa skanu</th>
+                    <th scope="col">Podgląd</th>
+                    
+                    
+                  </tr>
+                </thead>
+                <tbody>
+                    {%for skan in skany%}
+                    {% if klient.id == skan.klient_id %}
+                    <tr>
+                        <th scope="row">{{skan.nazwaSkanu}}</th>
+                          <td><a href="/pliki/{{skan.skan}}" target="_blank"><span class="material-icons-outlined">find_in_page</span></a></td>
+                          
+                         
+
+                            
+
+                    </tr>
+                    {% endif %}
+                    
+                    {% endfor %}
+                </tbody>
+            </table>           
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+<p class="h1">Historia</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Użytkownik</th>
+      <th scope="col">Informacja</th>
+      <th scope="col">Data</th>
+    </tr>
+  </thead>
+  <tbody>
+      {%for wpis in historia%}
+      {% if klient.id == wpis.klient_id %}
+      <tr>
+          <th scope="row">{{wpis.uzytkownik}}</th>
+            <td>{{wpis.zmieniono}}</td>
+            <td>{{wpis.data}}</td>
+           
+
+              
+
+      </tr>
+      {% endif %}
+      
+      {% endfor %}
+  </tbody>
+</table>    
+
+
+
+
+
+
+
+
+
+
+
+
+      <!-- Boczny panel po lewej    -->
+      <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasExampleLabel">Wybierz operację</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropMail">
+              <b> Wyślij maila </b> <span class="material-icons-outlined">
+                email
+                </span>
+            </button>
+          </div>
+          <br>
+          <div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropSms">
+              <b> Wyślij sms </b> <span class="material-icons-outlined">
+                textsms
+                </span>
+            </button>
+          </div>
+          <br>
+          <div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropSkan">
+              <b> Dodaj Skan </b> <span class="material-icons-outlined">
+                upload
+                </span>
+            </button>
+          </div>
+          <br>
+          <div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropFaktura">
+              <b> Dodaj fakturę </b> <span class="material-icons-outlined">
+                paid
+              </span>
+            </button>
+          </div>
+          <br>
+          <div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropPlatnosc">
+              <b> Zaksięguj płatność </b> <span class="material-icons-outlined">
+                money
+              </span>
+            </button>
+          </div>
+          <br>
+          <div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropRaportPlatnosci">
+              <b> Raport Płatności </b> <span class="material-icons-outlined">
+                format_list_numbered
+              </span>
+            </button>
+          </div>
+          <br>
+          <div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropUmowa">
+              <b> Generuj umowę </b> <span class="material-icons-outlined">
+                inventory
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      
+            <!--Modal odpowiedzialny za zmiane hasla-->
+
+
+            <div class="modal fade" id="staticBackdropHaslo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-scrollable">
+                  <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Zmiana hasła</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form method="post">
+                      {% csrf_token %}
+                      {{ form2.as_p }}
+                      
+                    
+                    
+                  
+            
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+                    <input type="submit" value="Edytuj" name="przyciskHaslo" class="btn btn-primary">
+                    </form></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+
+
+
+
+
+
+      <!--Modal odpowiedzialny za edytowanie danych-->
+
+
+      <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Edytowanie danych</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form method=POST > {% csrf_token %}
+        
+                {{form.as_p}}
+              
+            
+      
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+              <input type="submit" value="Edytuj" name="przyciskEdytuj" class="btn btn-primary">
+              </form></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+      <!--Modal odpowiedzialny za wysyłanie maili do klienta-->
+  
+
+
+
+<div class="modal fade" id="staticBackdropMail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Wyślij wiadomość</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{%url 'wyslij_mail'%}" enctype='multipart/form-data'>
+          {% csrf_token %}
+          <div class="mb-3">
+            
+            <input  readonly="readonly" name="mail" value= "{{klient.email}}" type="email" class="form-control" id="exampleFormControlInput1">
+          </div>
+          <div class="mb-3">
+            <label for="exampleFormControlTextarea1" class="form-label">Tytuł</label>
+            <input name="tytul" value= "Wiadomość od operatora" type="text" class="form-control" id="exampleFormControlInput2">
+          </div>
+          <div class="mb-3">
+            <label for="exampleFormControlTextarea1" class="form-label">Treść wiadomości</label>
+            <textarea class="form-control" name = "tresc" id="exampleFormControlTextarea1" rows="3" name="tresc"> </textarea>
+          </div>
+          <div class="mb-3">
+            <label for="formFile" class="form-label"></label>
+            <input class="form-control" type="file" name="zalacznik" multiple id="formFile">
+          </div>
+          <input type="text" class="form-control" name="id" style="display:none;" readonly value="{{klient.id}}">
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+        <input class="btn btn-primary" type="submit" value="Wyślij">
+      </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+      <!--Modal odpowiedzialny za wysyłanie sms do klienta-->
+  
+
+
+
+      <div class="modal fade" id="staticBackdropSms" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Wyślij wiadomość</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form method="POST" action="{%url 'wyslij_sms'%}"> 
+                {% csrf_token %}
+                <div class="mb-3">
+                  
+                  <input readonly="readonly" name="numer" value= "+48{{klient.numerGSM}}" type="text" class="form-control" id="exampleFormControlInput1">
+                </div>
+
+                <div class="mb-3">
+                  <label for="exampleFormControlTextarea1" class="form-label">Treść wiadomości</label>
+                  <textarea class="form-control" name = "tresc" id="exampleFormControlTextarea1" rows="3" name="tresc"> </textarea>
+                </div>
+                
+                <input type="text" class="form-control" name="id" style="display:none;" readonly value="{{klient.id}}">
+      
+      
+      
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+              <input class="btn btn-primary" type="submit" value="Wyślij">
+            </form>
+      
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+
+      <!--Modal odpowiedzialny za dodawanie skanu-->
+  
+
+
+
+      <div class="modal fade" id="staticBackdropSkan" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Dodaj Skan</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form method="POST" action="{%url 'dodaj_skan'%}" enctype='multipart/form-data'> 
+                {% csrf_token %}
+               
+                <div class="mb-3">
+                  <label for="exampleFormControlTextarea1" class="form-label">Nazwa skanu</label>
+                  <input name="nazwaSkanu" required name="nazwaSkanu" type="text" class="form-control" id="exampleFormControlInput2">
+                </div>
+                <div class="mb-3">
+                  <label for="formFile" class="form-label"></label>
+                  <input class="form-control" required type="file" name="skan" id="formFile">
+                </div>
+                <input type="text" class="form-control" name="id" style="display:none;" readonly value="{{klient.id}}">
+      
+              
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button> 
+              <input class="btn btn-primary" name="przyciskSkan" type="submit" value="Wyślij">
+            </form>
+      
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+
+
+   
+  <!--Modal odpowiedzialny za wystawianie faktury-->
+  
+
+
+
+  <div class="modal fade " id="staticBackdropFaktura" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Wystaw fakture</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{%url 'wystaw_fakture'%}"> 
+            {% csrf_token %}
+            
+
+            <div class="input_fields_wrap">
+              <button class="add_field_button btn btn-primary">Dodaj pozycję</button> <br><br>
+              <div><b> Usługa: </b><input type="text" name="pole"><b>Kwota(PLN): </b><input type="number" style="width: 120px;" min="0.01" step="0.01" name="cena"><b>Podatek VAT(%): </b><input name="podatek" style="width: 80px;" type="number" value="23">
+                <b>Ilość: </b><input name="ilosc" style="width: 80px;" type="number" value="1" step="1" min="1"><a href="#" 
+                class="remove_field"><span style="color:red;" class="material-icons-outlined">delete_forever</span></a>   </div>
+              
+               </div>
+               <br> 
+               <b>Sposób płatności: </b> <select name="rodzajPlatnosci">
+                
+                <option selected="selected" value="przelew">Przelew</option>
+                <option value="gotówka">Gotówka</option>
+               </select> <br>
+              <b>Termin płatności(dni):</b> <input type="number" name="terminPlatnosciDni" step="1" min="1" value="14">
+       
+
+
+
+            
+
+
+            <input type="text" class="form-control" name="id" style="display:none;" readonly value="{{klient.id}}">
+
+  
+  
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
+          <input class="btn btn-primary" type="submit" name="przyciskFaktura" value="Wyślij">
+        </form>
+  
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  
+      <!--Modal odpowiedzialny za dodawanie płatności-->
+  
+
+
+
+      <div class="modal fade" id="staticBackdropPlatnosc" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Dodaj płatność</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form method="POST" action="{%url 'dodaj_wplate'%}"> 
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label for="exampleFormControlTextarea1" class="form-label">Kwota</label>
+                  <input required name="kwota" type="number" min="0.01" step="0.01" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                  <label for="exampleFormControlTextarea1" class="form-label">Notatka</label>
+                  <textarea class="form-control" name = "notatka" rows="3"> </textarea>
+                </div>
+                
+                <input type="text" class="form-control" name="id" style="display:none;" readonly value="{{klient.id}}">
+      
+              
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button> 
+              <input class="btn btn-primary" name="przyciskPlatnosc" type="submit" value="Wyślij">
+            </form>
+      
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+
+
+        <!--Modal odpowiedzialny za generowanie raportu-->
+  
+
+
+
+        <div class="modal fade" id="staticBackdropRaportPlatnosci" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Generuj raport</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form method="POST" action="{% url 'generuj_raportCSV' %}"> 
+                  {% csrf_token %}
+
+                    <h6>Generuj wszystko  <input checked type="checkbox" id="opcja" onchange="dodaj();">  </h6> 
+                    <br>
+                    
+                    <div id="zakresy">
+                    </div>
+                    <input type="text" class="form-control" name="id" style="display:none;" readonly value="{{klient.id}}">
+                    <script>
+                    function dodaj()
+                    {
+                      if (document.getElementById('opcja').checked)
+                        {
+                          document.getElementById('zakresy').innerHTML="";
+                        }
+                        else
+                        {
+                          document.getElementById('zakresy').innerHTML='<h6>Podaj zakres:</h6> <label for="dataStartowa">Od</label><input ' +
+                          'name="dataStartowa" required class="form-control" type="date"<label for="dataKoncowa">do</label><input name="dataKoncowa" required class="form-control" type="date">';
+                        }
+                    }
+                    </script>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button> 
+                <input class="btn btn-primary" name="przyciskPlatnosc" type="submit" value="Wyślij">
+              </div>
+              </form>
+        
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+
+
+        <!--Modal odpowiedzialny za dodawanie umowy-->
+  
+
+
+
+         <div class="modal fade" id="staticBackdropUmowa" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="staticBackdropLabel">Dodaj umowe</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <form method="POST" action="{% url 'generuj_umowe' %}"> 
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="exampleFormControlTextarea1" class="form-label">Aktualna taryfa klienta</label>
+                            <input name="taryfa" required type="text" value="{{taryfaKlienta.nazwaTaryfy}}" readonly class="form-control" id="exampleFormControlInput2">
+                        </div> 
+                        <div class="mb-3">
+                          <label for="exampleFormControlTextarea1" class="form-label">Abonament miesięczny</label>
+                          <input name="kwota" required type="text" value="{{taryfaKlienta.cena}} PLN" readonly class="form-control" id="exampleFormControlInput2">
+                      </div> 
+                     
+                        <div class="mb-3">
+                          <label for="exampleFormControlTextarea1" class="form-label">Start zobowiązania na umowie</label>
+                          <input name="dataOd" required type="date" class="form-control" id="exampleFormControlInput2">
+                      </div> 
+                      <div class="mb-3">
+                        <label for="exampleFormControlTextarea1" class="form-label">Koniec zobowiązania</label>
+                        <input name="dataDo" required type="date" class="form-control" id="exampleFormControlInput2">
+                    </div> 
+                    
+                    
+                      <input type="text" class="form-control" name="id" style="display:none;" readonly value="{{klient.id}}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button> 
+                        <input class="btn btn-primary" name="przyciskPlatnosc" type="submit" value="Wyślij">
+                    </div>
+                  </form>
+            
+                  
+                </div>
+            </div>
+         </div>
+    
+
+
+{% endblock %}
+
+
+
+

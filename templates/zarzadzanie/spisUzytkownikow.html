@@ -1,0 +1,33 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'zarzadzanie' %}">Zarządzanie</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Użytkownicy i grupy</li>
+    </ol>
+</nav>
+
+
+<h1> Grupy </h1>
+<div class="row">
+{% for grupa, liczba in grupyLiczba%}
+
+<div class="col-sm-6">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">{{grupa}}</h5>
+      <p class="card-text">Liczba przypisanych użytkownikow: <b>{{liczba}}</b></p>
+      <a href="{% url 'uzytkownicy' grupa.name %}" class="btn btn-primary">Przejdź do użytkowników</a>
+    </div>
+  </div>
+  <br>
+</div>
+{% endfor %}
+</div>
+
+
+
+{% endblock %}

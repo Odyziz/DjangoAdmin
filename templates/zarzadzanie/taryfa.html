@@ -1,0 +1,44 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'zarzadzanie' %}">Zarządzanie</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'spisTaryf' %}">Taryfy</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Taryfa {{taryfa.nazwaTaryfy}}</li>
+    </ol>
+</nav>
+
+
+<h1> Lista klientów z przypisaną taryfą: </h1>
+
+<table class="table" id="tabela">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Imię i Nazwisko</th>
+        <th scope="col">Adres zamieszkania</th>
+        <th scope="col">Adres instalacji</th>
+        <th scope="col">Przejdź do wybranego profilu</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for klient in klienci  %}
+        <tr>
+            <th scope="row">{{klient.id}}</th>
+                <td>{{klient.imie}} {{klient.nazwisko}}</td>
+                <td> {{klient.miastoZamieszkania}}, ul. {{klient.ulicaZamieszkania}}  {{klient.numerZamieszkania}} </td>
+                <td> {{klient.miastoInstalacji}}, ul. {{klient.ulicaInstalacji}}  {{klient.numerInstalacji}} </td>
+              
+                <td><a href="{% url 'klient' klient.id %}" class="btn btn-primary btn-smactive" role="button" aria-pressed="true">Profil Klienta</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'zarzadzanie' %}">Zarządzanie</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'spisUzytkownikow' %}">Uzytkownicy i grupy</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Grupa {{grupa}}</li>
+    </ol>
+</nav>
+
+<h1> Grupa: {{grupa}} </h1>
+
+<table class="table" id="tabela">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Nazwa</th>
+        <th scope="col">Imię i nazwisko</th>
+        <th scope="col">Dostęp do Panelu admina</th>
+        <th scope="col">Status</th>
+        <th scope="col">Data dołączenia</th>
+        <th scope="col">Ostatnie logowanie</th>
+      </tr>
+    </thead>
+    <tbody>
+        {%for uzytkownik in uzytkownicy%}
+        <tr>
+            <th scope="row">{{uzytkownik.id}}</th>
+                <td>{{uzytkownik.username}}</td>
+                <td>{{uzytkownik.get_full_name}}</td>
+                {% if uzytkownik.is_staff  %}
+                <td style="color:green;">Dostęp</td>
+                {% else %}
+                <td style="color:red;">Brak dostępu</td>
+                {% endif %}
+
+                {% if uzytkownik.is_active  %}
+                <td style="color:green;">Aktywny</td>
+                {% else %}
+                <td style="color:red;">Wyłączony</td>
+                {% endif %}
+                <td>{{uzytkownik.date_joined}}</td>
+                <td>{{uzytkownik.last_login}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+
+{% endblock %}

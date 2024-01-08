@@ -1,0 +1,44 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'zarzadzanie' %}">Zarządzanie</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Pakiety dodatkowe</li>
+    </ol>
+</nav>
+
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropTaryfa">
+  Utwórz nowy pakiet
+</button> 
+<br><br>
+
+{% for pakiet, liczba in pakietyLiczba%}
+  
+
+
+<div class="card text-center">
+    <div class="card-header" style='background-color:lightgray;'>
+      <b>{{pakiet.nazwaPakietu}}</b>
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">Opis usługi</h5>
+      <p class="card-text">Abonament miesięczny w kwocie {{pakiet.cena}} PLN w tym {{pakiet.podatek}}% VAT</p>
+      <a href="{% url 'pakietSzczegoly' pakiet.id %}" class="btn btn-primary">Przejdź</a>
+    </div>
+    <div class="card-footer text-muted">
+      Liczba klientów z przypisanym pakietem: <b>{{liczba}}</b>
+    </div>
+  </div>
+<br>
+
+  
+{% endfor %}
+
+
+    
+
+{% endblock %}

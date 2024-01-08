@@ -1,0 +1,102 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'zarzadzanie' %}">Zarządzanie</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Adresy</li>
+  </ol>
+</nav>
+
+<h1> Adresy </h1>
+<div class="row">
+{% for wojewodztwo in wojewodztwa  %}
+
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                    <h5 style="background-color:lightgray; text-align:center;" class="card-title">Województwo: {{wojewodztwo.nazwaWojewodztwa}}</h5> <hr>
+                    <div class="accordion accordion-flush" id="accordionFlushExample">
+                      {% for powiat in powiaty %}
+                      {% if powiat.wojewodztwo == wojewodztwo %}
+                                <div class="accordion-item">
+                                  <h2 class="accordion-header" id="flush-heading{{powiat.id}}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-powiat{{powiat.id}}" aria-expanded="false" aria-controls="flush-powiat{{powiat.id}}">
+                                      <b>Powiat: {{powiat.nazwaPowiatu}}</b>
+                                    </button>
+                                  </h2>
+                                  <div id="flush-powiat{{powiat.id}}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{powiat.id}}" data-bs-parent="#accordionFlushExample">
+                                              <div class="accordion-body">
+                                                      <div class="accordion accordion-flush" id="accordionFlushExample">
+                                                        {% for gmina in gminy  %}
+                                                        {% if gmina.powiat == powiat %}
+                                                        <div class="accordion-item">
+                                                          <h2 class="accordion-header" id="flush-heading-gmina{{gmina.id}}">
+                                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-gmina{{gmina.id}}" aria-expanded="false" aria-controls="flush-gmina{{gmina.id}}">
+                                                              <b>Gmina: {{gmina.nazwaGminy}}</b>
+                                                            </button>
+                                                          </h2>
+                                                          <div id="flush-gmina{{gmina.id}}" class="accordion-collapse collapse" aria-labelledby="flush-heading-gmina{{gmina.id}}" data-bs-parent="#accordionFlushExample1">
+                                                                      <div class="accordion accordion-flush" id="accordionFlushExample">
+                                                                        <div class="accordion-body">
+                                                                        {% for miasto in miasta  %}
+                                                                        {% if miasto.gmina == gmina %}
+                                                                             
+                                                                        
+                                                                                <div class="accordion-item">
+                                                                                <h2 class="accordion-header" id="flush-heading-miasto{{miasto.id}}">
+                                                                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-miasto{{miasto.id}}" aria-expanded="false" aria-controls="flush-miasto{{miasto.id}}">
+                                                                                    <b>Miejscowość: {{miasto.nazwaMiasta}}</b>
+                                                                                  </button>
+                                                                                </h2>
+                                                                                <div id="flush-miasto{{miasto.id}}" class="accordion-collapse collapse" aria-labelledby="flush-heading-miasto{{miasto.id}}" data-bs-parent="#accordionFlushExample2">
+                                                                                                <div class="accordion accordion-flush" id="accordionFlushExample">
+                                                                                                  <div class="accordion-body">
+                                                                                                    <ul class="list-group">
+                                                                                                  {% for ulica in ulice  %}
+                                                                                                  {% if ulica.miasto == miasto %}
+                                                                                                      
+                                                                                                  
+                                                                                                  
+                                                                                                    <li class="list-group-item">{{ulica.nazwaUlicy}}</li>
+                                                                                                   
+                                                                                                    
+                                                                                                  
+                                                                                                            {% endif %}
+                                                                                                            {% endfor %}
+                                                                                                </ul>
+                                                                                                      </div>
+                                                                                                </div>
+
+                                                                                </div>
+                                                                              </div>
+                                                                                  {% endif %}
+                                                                                  {% endfor %}
+
+                                                                            </div>
+                                                                      </div>
+                                                          </div>    
+                                                        </div>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                      
+                                                      </div>
+                                              </div>
+                                  </div>
+                                </div>
+                    {% endif %}
+                    {% endfor %}
+                    </div>
+
+            </div>
+        </div>
+      <br>
+    </div>
+{% endfor %}
+</div>  
+
+
+
+{% endblock %}

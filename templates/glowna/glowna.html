@@ -1,0 +1,119 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active" aria-current="page">Strona Główna</li>
+  </ol>
+</nav>
+
+<style>
+</style>
+
+
+<link href="" rel="stylesheet">
+
+<h4>Cześć {{request.user.get_full_name}}!</h4> 
+<center>
+<h2>Data systemowa: {{dzis}}</h2>
+<h4>Podsumowanie dnia oraz globalne statystyki</h4>
+</center>
+
+<div class="row">
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Klienci<span class="material-icons-outlined">
+          people
+          </span></h5> 
+        <b>Liczba utworzonych klientów: {{liczbaKlientow}}</b> <br>
+        Liczba aktywnych klientów: {{liczbaAktywnych}} <br>
+        Liczba nieaktywnych klientów: {{liczbaNieaktywnych}} <br>
+        Aktywny klienci stanowią {{procentAktywnych}}% klientów.
+        <br>
+        <h5>Ostatnio utworzeni:</h5>
+        
+        <ul class="list-group">
+          {% for klient in ostatnich5%}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{klient.imie}} {{klient.nazwisko}}
+            <a href="{% url 'klient' klient.id %}"><span class="badge bg-primary rounded-pill">Pokaz profil</span></a>
+          </li>
+          {% endfor %}
+        </ul>
+        <br><br>
+        <a href="{% url 'klienci' %}" class="btn btn-primary">Przedź do klientów</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Montaże<span class="material-icons-outlined">
+          construction
+          </span></h5>
+          <b>Liczba wszystkich montazy: {{liczbaMontazy}}</b> <br>
+        Liczba oczekujacych: {{liczbaAktywnychMontazy}} <br>
+        Liczba zakończonych spraw: {{liczbaZakonczonychMontazy}} <br>
+        Oczekujące stanowią {{procentAktywnychMontazy}}% wszystkich.
+        <br>
+        <h5>Ostatnio dodane:</h5>
+        <ul class="list-group">
+          {% for montaz in ostatnich5Montazy%}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{montaz.miasto}} {{montaz.ulica}} {{montaz.numerDomu}} {% if montaz.numerMieszkania != None %}
+            / {{montaz.numerMieszkania}}
+            {% endif %}
+            <a href="{% url 'montaz' montaz.id %}"><span class="badge bg-primary rounded-pill">Pokaz zgłoszenie</span></a>
+          </li>
+          {% endfor %}
+        </ul>
+        <br><br>
+        <a href="{% url 'montaze' %}" class="btn btn-primary">Przejdź do montaży</a>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Finanse i wpłaty <span class="material-icons-outlined">
+          paid
+          </span> </h5> 
+        <b> Liczba wystawionych faktur z dzisiaj: {{fakturyDzisiaj}}</b> <br>
+        Liczba faktur z <span style="color:green;"> aktualnego miesiąca: <b>{{fakturyTenMiesiac}}</b> </span> i  <span style="color:blue;"> poprzedniego: <b>{{fakturyPoprzedniMiesiac}}</b> </span> <br>
+        Liczba wpłat z dzisiaj: {{sumaWplatDzisiaj}} PLN <br>
+        Suma wpłat z <span style="color:green;"> aktualnego miesiąca: <b>{{sumaWplatAktualnyMiesiac}} PLN</b> </span> i  <span style="color:blue;"> poprzedniego: <b>{{sumaWplatPoprzedniMiesiac}} PLN</b> </span> <br>
+
+        <br>
+        <a href="{% url 'finanse' %}" class="btn btn-primary">Przejdź do finansów</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Helpdesk <span class="material-icons-outlined">
+          info
+          </span></h5>
+        <b>Liczba otwartych zgłoszeń: {{liczbaOtwartychZgloszen}}</b> <br>
+        Liczba zamkniętych zgłoszeń: {{liczbaZamknietychZgloszen}} <br>
+        <b> Ostatnie zgłoszenie: </b> <br>
+          
+        <i>{{ostatnieZgloszenie.dataUtworzenia}}</i> <a href="{% url 'klient' ostatnieZgloszenie.klient.id %}">{{ostatnieZgloszenie.klient}}</a>: {{ostatnieZgloszenie.temat}} 
+        <a href="{% url 'zgloszenie' ostatnieZgloszenie.id %}"><span class="badge bg-primary rounded-pill">Przejdź</span></a>
+
+        <br><br>
+        <a href="{% url 'zgloszenia' %}" class="btn btn-primary">Przejdź do zgłoszeń</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

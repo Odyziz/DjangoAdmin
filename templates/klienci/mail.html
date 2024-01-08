@@ -1,0 +1,22 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+{% if mailStatus %}
+<div class="alert alert-success" role="alert">
+    Mail został pomyślnie wysłany! <a href="/klienci/id/{{id}}">Powrót do profilu klienta</a>
+
+</div>
+
+{% else %}
+<div class="alert alert-danger" role="alert">
+    Coś poszło nie tak i mail nie został wysłany <a href="/klienci/id/{{id}}">Powrót do profilu klienta</a>
+
+</div>
+{% endif %}
+    
+{% endblock %}
+
+
+
+

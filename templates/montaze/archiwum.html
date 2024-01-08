@@ -1,0 +1,42 @@
+{% extends 'glowna/szablon.html' %}
+{% load static %}
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'montaze' %}">Montaże</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Archiwum</li>
+    </ol>
+  </nav>
+  
+
+  <table class="table" id="tabela">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Imię i Nazwisko</th>
+        <th scope="col">Adres zlecenia</th>
+        <th scope="col">Dane kontaktowe</th>
+        <th scope="col">Inforacja biura</th>
+        <th scope="col">Inforacja montażystów</th>
+        <th scope="col">Przejdź</th>
+      </tr>
+    </thead>
+    <tbody>
+        {%for montaz in montaze%}
+        <tr>
+            <th scope="row">{{montaz.id}}</th>
+                <td>{{montaz.imie}} {{montaz.nazwisko}} </td>
+                <td> {{montaz.miasto}}, ul. {{montaz.ulica}} {{montaz.numerDomu}}</td>
+                <td> {{montaz.telefon}}, {{montaz.alternatywny}}  {{montaz.email}} </td>
+                <td>{{montaz.informacjaBiuro}}</td>
+                <td>{{montaz.informacjaMontaz}}</td>
+                <td><a href="id/{{montaz.id}}" class="btn btn-primary btn-smactive" role="button" aria-pressed="true">Szczegóły</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+  
+
+{% endblock %}

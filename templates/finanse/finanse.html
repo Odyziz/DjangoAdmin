@@ -1,0 +1,209 @@
+{% extends 'glowna/szablon.html' %}
+
+{%block content %}
+
+<nav style="background-color:white;" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'glowna' %}">Strona Główna</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Finanse</li>
+    </ol>
+  </nav>
+
+  {% for platnosc in platnosci  %}
+  {{platnosc.nazwa}}
+  
+  {% endfor %}
+
+
+
+
+<h1> Finanse </h1> <br> 
+
+<h3> Operacje: </h3>
+
+<div class="card w-75">
+  <div class="card-body">
+    <h5 class="card-title">Masowe wystawianie faktur</h5>
+    <p class="card-text">Wystawianie faktur za miesiąc {{miesiac}}, rok {{rok}}</p>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropWystawianieFaktur"><b> Wystaw faktury </b></button>
+  </div>
+</div>
+<div class="card w-75">
+  <div class="card-body">
+    <h5 class="card-title">Księgowanie płatności</h5>
+    <p class="card-text">Księgowanie wszystkich wpłat za miesiąc {{miesiac}}, rok {{rok}} </p>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropKsiegowanie"><b> Księguj wpłaty </b></button>  </div>
+</div>
+<div class="card w-75">
+  <div class="card-body">
+    <h5 class="card-title">Wysłanie wiadomości</h5>
+    <p class="card-text">Wysłanie wiadomości email do wszystkich klientów z przypisanym adresem</p>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdropMaile"><b>Wyślij wiadomość</b></button>  </div>
+</div>
+
+
+    
+
+
+
+ <!--Modal odpowiedzialny za masowe wystawianie faktur-->
+  
+
+
+
+ <div class="modal fade" id="staticBackdropWystawianieFaktur" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Wystawianie faktur</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'wystaw_faktury' %}"> 
+            {% csrf_token %}
+
+          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button> 
+          <input class="btn btn-primary" name="przyciskFaktury" type="submit" value="Wyślij">
+        </form>
+  
+        </div>
+      </div>
+    </div>
+</div>
+
+
+ <!--Modal odpowiedzialny za masowe ksiegowanie platnosci-->
+ <div class="modal fade" id="staticBackdropKsiegowanie" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Księgowanie wpłat</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'ksiegowanie' %}" enctype='multipart/form-data'> 
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="formFile" class="form-label"></label>
+            <input class="form-control" required type="file" name="arkusz" id="formFile">
+          </div>
+
+
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button> 
+        <input class="btn btn-primary" name="przyciskFaktury" type="submit" value="Wyślij">
+      </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+ <!--Modal odpowiedzialny za masowe wysyłanie maili-->
+  
+
+
+
+ <div class="modal fade" id="staticBackdropMaile" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Wysyłanie maili</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'wyslij_maile' %}" enctype='multipart/form-data'> 
+          {% csrf_token %}
+          <h6>Wyślij do wszytkich<input type="radio" name="radio" id="wszyscy" onchange="dodaj();">
+
+            Wyślij do wybranych<input type="radio" name="radio" id="wybrani" onchange="dodaj();">  </h6> 
+                  <br>
+                  
+                  <div id="wynik">
+                    <i>Wybierz opcję powyżej aby zobaczyć kreator</i>
+                  </div>
+                  
+                  <script>
+                  function dodaj()
+                  {
+                    if (document.getElementById('wszyscy').checked)
+                      {
+                          document.getElementById('wynik').innerHTML=`
+                          <h5> Wysyłka do wszystkich </h5>
+                          <div class="mb-3">
+                            <label for="exampleFormControlTextarea1" class="form-label">Tytuł</label>
+                            <input name="tytul" placeholder="Temat Wiadomości" type="text" class="form-control" id="exampleFormControlInput2" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="exampleFormControlTextarea1" class="form-label">Treść wiadomości</label>
+                            <textarea class="form-control" name = "tresc" id="exampleFormControlTextarea1" rows="3" name="tresc"> </textarea>
+                          </div>
+                          <div class="mb-3">
+                            <label for="formFile" class="form-label"></label>
+                            <input class="form-control" type="file" name="zalacznik" multiple id="formFile">
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button> 
+                          <input class="btn btn-primary" name="wszyscyMaile" type="submit" value="Wyślij">
+                        </form>
+                  
+                        </div>
+                          `;
+
+
+                      }
+                   else if ((document.getElementById('wybrani').checked))
+                      {
+                        document.getElementById('wynik').innerHTML=`                  
+                        <h5> Wybierz abonentów </h5>
+                        <select name="wybrani" class="form-select" size="3" aria-label="size 3 select example" multiple>
+      
+                          {% for klient in klienci %}
+                          <option value="{{klient.id}}">ID ({{klient.id}}) {{klient}} </option>
+                          {% endfor %}
+                          </select>
+      
+                        <div class="mb-3">
+                          <label for="exampleFormControlTextarea1" class="form-label">Tytuł</label>
+                          <input name="tytul" placeholder="Temat Wiadomości" type="text" class="form-control" id="exampleFormControlInput2" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="exampleFormControlTextarea1" class="form-label">Treść wiadomości</label>
+                          <textarea class="form-control" name = "tresc" id="exampleFormControlTextarea1" rows="3" name="tresc"> </textarea>
+                        </div>
+                        <div class="mb-3">
+                          <label for="formFile" class="form-label"></label>
+                          <input class="form-control" type="file" name="zalacznik" multiple id="formFile">
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button> 
+                        <input class="btn btn-primary" name="wybraniMaile" type="submit" value="Wyślij">
+                      </form>
+                
+                      </div>`;
+                      }
+                  }
+                  </script>
+
+
+
+
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+{% endblock %}
